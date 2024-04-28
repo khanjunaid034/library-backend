@@ -19,7 +19,7 @@ router.route('/return')
 .patch(authController.protect, authController.restrictTo('librarian', 'admin'), bookController.returnBook)
 
 router.route('/:code')
-.delete(bookController.deleteBook)
+.delete(authController.protect, authController.restrictTo('librarian', 'admin'), bookController.deleteBook)
 
 router.route('/hold')
 .patch(authController.protect, bookController.holdBook)
