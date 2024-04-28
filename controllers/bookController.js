@@ -8,8 +8,8 @@ const dotenv = require('dotenv');
 dotenv.config({path: './config.env'});
 
 AWS.config.update({
-    accessKeyId: process.env.AWS_KEY,
-    secretAccessKey: process.env.AWS_ID,
+    accessKeyId: process.env.AWS_ID,
+    secretAccessKey: process.env.AWS_KEY,
     region: 'ap-south-1',
 })
 
@@ -31,6 +31,7 @@ exports.addBook = async (req, res, next) => {
         data = await s3.upload(uploadParams).promise();
         fs.unlinkSync(file.path);
     } catch(err) {
+        fs.unlinkSync(file.path);
         return next(err);
     }
     
