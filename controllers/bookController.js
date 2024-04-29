@@ -67,6 +67,8 @@ exports.assignBook = async (req, res, next) => {
         if (!req.body.code || !req.body.email) {
             return next(new AppError('Book code or user e-mail not supplied!', 400));
         }
+        req.body.code = req.body.code.toUpperCase();
+        
         const book = await Book.findOne({ code: req.body.code });
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
