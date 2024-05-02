@@ -24,4 +24,7 @@ router.route('/:code')
 router.route('/hold')
 .patch(authController.protect, bookController.holdBook)
 
+router.route('/searchByTitle/:searchTerm')
+.get(bookController.searchByTitle);
+
 module.exports = router;

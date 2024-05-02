@@ -198,3 +198,24 @@ exports.holdBook = async (req, res, next) => {
         next(err);
     }
 }
+
+// SEARCH BOOK METHODS
+
+// SEARCH BY BOOK TITLE
+
+exports.searchByTitle = async (req, res, next) => {
+    if(!req.params.searchTerm) {
+        return
+    }
+    try {
+        const books = await Book.find({title: {$regex: req.params.searchTerm.toString(), $options: 'i'}}).select('-_id -__v');
+        res.status(200).json({
+            status: 'success',
+            data: {
+                books
+            }
+        })
+    } catch (err) {
+        next(err);
+    }
+}
