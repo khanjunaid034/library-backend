@@ -103,6 +103,7 @@ exports.returnBook = async (req, res, next) => {
     if (!req.body.code || !req.body.email) {
         return next(new AppError('Book code or user e-mail not supplied!', 400));
     }
+    req.body.code = req.body.code.toUpperCase();
 
     try {
         // check if user exists in database
@@ -116,6 +117,7 @@ exports.returnBook = async (req, res, next) => {
         if (!book) {
             return next(new AppError('No book found with given book code!', 404));
         }
+        
 
         // check if supplied book is assigned to user
         if (!user.assignedBooks.includes(req.body.code)) {
