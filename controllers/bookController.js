@@ -5,7 +5,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs')
 const hashGen = require('hash-generator');
 const dotenv = require('dotenv');
-dotenv.config({path: './config.env'});
+dotenv.config({ path: './config.env' });
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ID,
@@ -19,7 +19,7 @@ const s3 = new AWS.S3();
 exports.addBook = async (req, res, next) => {
     const file = req.file;
     const uniqueFileName = `${hashGen(12)}.${file.originalname.split('.').pop()}`;
-    
+
     const fileStream = fs.createReadStream(file.path);
     const uploadParams = {
         Bucket: 'mern-play/book-images',
@@ -30,13 +30,13 @@ exports.addBook = async (req, res, next) => {
     try {
         data = await s3.upload(uploadParams).promise();
         fs.unlinkSync(file.path);
-    } catch(err) {
+    } catch (err) {
         fs.unlinkSync(file.path);
         return next(err);
     }
-    
+
     try {
-        const book = await Book.create({...req.body, imageUrl: data.Location});
+        const book = await Book.create({ ...req.body, imageUrl: data.Location });
         res.status(201).json({
             status: 'success',
             data: {
@@ -68,7 +68,7 @@ exports.assignBook = async (req, res, next) => {
             return next(new AppError('Book code or user e-mail not supplied!', 400));
         }
         req.body.code = req.body.code.toUpperCase();
-        
+
         const book = await Book.findOne({ code: req.body.code });
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
@@ -117,7 +117,7 @@ exports.returnBook = async (req, res, next) => {
         if (!book) {
             return next(new AppError('No book found with given book code!', 404));
         }
-        
+
 
         // check if supplied book is assigned to user
         if (!user.assignedBooks.includes(req.body.code)) {
@@ -204,11 +204,16 @@ exports.holdBook = async (req, res, next) => {
 // SEARCH BY BOOK TITLE
 
 exports.searchByTitle = async (req, res, next) => {
-    if(!req.params.searchTerm) {
-        return
+    if (!req.params.searchTerm) {
+        return res.status(200).json({
+            status: 'success',
+            data:
+                []
+        })
     }
+
     try {
-        const books = await Book.find({title: {$regex: req.params.searchTerm.toString(), $options: 'i'}}).select('-_id -__v');
+        const books = await Book.find({ title: { $regex: req.params.searchTerm.toString(), $options: 'i' } }).select('-_id -__v');
         res.status(200).json({
             status: 'success',
             data: {

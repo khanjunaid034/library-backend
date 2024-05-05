@@ -10,4 +10,7 @@ router.route('/')
 router.route('/login')
 .post(authController.login);
 
+router.route('/updatePassword')
+.patch(authController.protect, userController.updatePassword);
+
 module.exports = router;

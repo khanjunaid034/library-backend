@@ -17,3 +17,33 @@ exports.getUsers = async (req, res, next) => {
         next(err);
     }
 }
+
+exports.updatePassword = async (req, res, next) => {
+    console.log(req)
+    if(!req.body.currentPassword || !req.body.newPassword || !req.body.confirmNewPassword) {
+        return next(new AppError('Current password, new password and confirm new password are mandatory to be supplied!', 400));
+    }
+
+    try {
+        const user = await User.findById({_id: req.user._id}).select('+password');
+        
+        if(!await user.checkPassword(req.body.currentPassword, user.password)) {
+            return next(new AppError('Current password is incorrect!', 400));
+        }
+
+        if( req.body.newPassword !== req.body.confirmNewPassword ) {
+            return next(new AppError('New password and confirm new password do not match!', 400));
+        }
+
+        // Update the password in database
+        user.password = req.body.newPassword;
+        await user.save();
+
+        res.status(200).json({
+            status:'success',
+            message:'Password updated!'
+        })
+    } catch(err) {
+        console.log(err);
+    }
+}

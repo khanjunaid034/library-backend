@@ -25,9 +25,6 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use('/api/v1/library/users', userRouter);
 app.use('/api/v1/library/books', bookRouter);
-app.get('*', (req, res, next) => {
-    console.log(req.cookies);
-})
 
 app.use(globalErrorHandler);
 

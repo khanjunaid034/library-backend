@@ -28,7 +28,7 @@ const createSendToken = (user, statusCode, req, res) => {
 
 exports.createUser = async (req, res, next) => {
     try {
-        const user = await User.create(req.body);
+        const user = await User.create({email: req.body, name: req.body.name, password: password, confirmPassword: confirmPassword});
         createSendToken(user, 201, req, res);
     }
     catch (err) {
