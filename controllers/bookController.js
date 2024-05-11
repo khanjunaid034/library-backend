@@ -90,9 +90,23 @@ exports.assignBook = async (req, res, next) => {
 
         user.assignedBooks.push(book.code);
 
-        book.unitsAvailable = book.unitsAvailable - 1;
-        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { new: true, runValidators: true }, { session });
-        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { new: true, runValidators: true }, { session });
+        // book.unitsAvailable = book.unitsAvailable - 1;
+
+        await Promise.all([
+            User.findOneAndUpdate(
+                { email: user.email }, 
+                { $push: { assignedBooks: book.code } },
+                { session }
+            ),
+            Book.findOneAndUpdate(
+                { code: book.code, unitsAvailable: { $gt: 0 } },
+                { $inc: { unitsAvailable: -1 } },
+                { session }
+            )
+        ])
+
+        // await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { new: true, runValidators: true }, { session });
+        // await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { new: true, runValidators: true }, { session });
         await session.commitTransaction();
         
         res.status(200).json({
@@ -137,11 +151,24 @@ exports.returnBook = async (req, res, next) => {
         }
 
         // return the book
-        user.assignedBooks.pop(req.body.code);
-        book.unitsAvailable = book.unitsAvailable + 1;
+        // user.assignedBooks.pop(req.body.code);
+        // book.unitsAvailable = book.unitsAvailable + 1;
 
-        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { session });
-        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { session });
+        await Promise.all([
+            User.findOneAndUpdate(
+                { email: user.email },
+                { $pull: { assignedBooks: book.code } },
+                { session }
+            ),
+            Book.findOneAndUpdate(
+                { code: book.code },
+                { $inc: { unitsAvailable: 1 } },
+                { session }
+            )
+        ])
+
+        // await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { session });
+        // await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { session });
         await session.commitTransaction();
 
         res.status(200).json({
