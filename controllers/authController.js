@@ -28,8 +28,19 @@ const createSendToken = (user, statusCode, req, res) => {
 
 exports.createUser = async (req, res, next) => {
     try {
-        const user = await User.create({email: req.body, name: req.body.name, password: password, confirmPassword: confirmPassword});
-        createSendToken(user, 201, req, res);
+        if(!req.body.email || !req.body.password || !req.body.confirmPassword || !req.body.name || !req.body.role) {
+            return next(new AppError('Please fill in all the details!', 400));
+        }
+
+        if( (req.body.role === 'librarian' || req.body.role === 'admin' ) && req.user.role !== 'admin' ) {
+            return next(new AppError('Only an admin can create new admin or librarian accounts!', 403));
+        }
+        
+        const user = await User.create({email: req.body.email, name: req.body.name, password: req.body.password, confirmPassword: req.body.confirmPassword, role: req.body.role});
+        res.status(201).json({
+            status: 'success',
+            user
+        })
     }
     catch (err) {
         console.log(err)

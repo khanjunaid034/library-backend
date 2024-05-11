@@ -4,7 +4,7 @@ const authController = require('./../controllers/authController');
 const router = express.Router();
 
 router.route('/')
-.post(authController.createUser)
+.post(authController.protect, authController.restrictTo('librarian', 'admin'), authController.createUser)
 .get(authController.protect, authController.restrictTo('librarian', 'admin'), userController.getUsers);
 
 router.route('/login')

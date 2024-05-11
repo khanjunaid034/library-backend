@@ -13,5 +13,11 @@ module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
+    if(err.code === 11000) {
+        const key = Object.keys(err.keyValue)[0];
+        const value = err.keyValue[key];
+        err.message = `Record already exists for ${key}: ${value}!`
+    }
+
     sendErrorDev(err, res);
 }
