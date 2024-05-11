@@ -6,6 +6,7 @@ const fs = require('fs')
 const hashGen = require('hash-generator');
 const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
+const mongoose = require('mongoose');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ID,
@@ -63,6 +64,9 @@ exports.allBooks = async (req, res, next) => {
 }
 
 exports.assignBook = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         if (!req.body.code || !req.body.email) {
             return next(new AppError('Book code or user e-mail not supplied!', 400));
@@ -87,18 +91,26 @@ exports.assignBook = async (req, res, next) => {
         user.assignedBooks.push(book.code);
 
         book.unitsAvailable = book.unitsAvailable - 1;
-        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { new: true, runValidators: true });
-        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { new: true, runValidators: true });
+        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { new: true, runValidators: true }, { session });
+        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { new: true, runValidators: true }, { session });
+        await session.commitTransaction();
+        
         res.status(200).json({
             status: 'success',
             message: 'Book assigned'
         })
     } catch (err) {
+        await session.abortTransaction();
         next(err);
+    }
+    finally {
+        session.endSession();
     }
 }
 
 exports.returnBook = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     // check if book code and user email is supplied
     if (!req.body.code || !req.body.email) {
         return next(new AppError('Book code or user e-mail not supplied!', 400));
@@ -128,14 +140,19 @@ exports.returnBook = async (req, res, next) => {
         user.assignedBooks.pop(req.body.code);
         book.unitsAvailable = book.unitsAvailable + 1;
 
-        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { new: true, runValidators: true });
-        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { new: true, runValidators: true });
+        await Book.findOneAndUpdate({ code: req.body.code }, { unitsAvailable: book.unitsAvailable }, { session });
+        await User.findOneAndUpdate({ email: user.email }, { assignedBooks: user.assignedBooks }, { session });
+        await session.commitTransaction();
+
         res.status(200).json({
             status: 'success',
             message: 'Book returned'
         })
     } catch (err) {
+        await session.abortTransaction();
         next(err);
+    } finally {
+        session.endSession();
     }
 }
 
@@ -164,6 +181,7 @@ exports.deleteBook = async (req, res, next) => {
 
 
 exports.holdBook = async (req, res, next) => {
+
     try {
         const book = await Book.findOne({ code: req.body.code });
         if (!book) {
