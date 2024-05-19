@@ -16,4 +16,10 @@ router.route('/login')
 router.route('/updatePassword')
 .patch(authController.protect, userController.updatePassword);
 
+router.route('/getOTP')
+.post(authController.getOTP);
+
+router.route('/resetPassword')
+.post(authController.resetPassword);
+
 module.exports = router;

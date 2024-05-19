@@ -46,7 +46,16 @@ const userSchema = new mongoose.Schema({
 
     holds: {
         type: [String]
-    }
+    },
+    
+    otp: {
+        type: String
+    },
+
+    otpExpiration: {
+        type: Date
+    },
+    
 })
 
 userSchema.pre('save', function(next) {

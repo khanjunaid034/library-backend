@@ -23,7 +23,7 @@ exports.addBook = async (req, res, next) => {
     if (req.body.published > currentYear) {
         return next(new AppError('Book publish year cannot be greater than current year!', 400));
     }
-    
+
     const file = req.file;
     const uniqueFileName = `${hashGen(12)}.${file.originalname.split('.').pop()}`;
 
@@ -100,7 +100,7 @@ exports.assignBook = async (req, res, next) => {
 
         await Promise.all([
             User.findOneAndUpdate(
-                { email: user.email }, 
+                { email: user.email },
                 { $push: { assignedBooks: book.code } },
                 { session }
             ),
@@ -111,8 +111,8 @@ exports.assignBook = async (req, res, next) => {
             )
         ])
 
-          await session.commitTransaction();
-        
+        await session.commitTransaction();
+
         res.status(200).json({
             status: 'success',
             message: 'Book assigned'
@@ -154,7 +154,7 @@ exports.returnBook = async (req, res, next) => {
             return next(new AppError('Given book is not assigned to this user.', 400));
         }
 
-     
+
         await Promise.all([
             User.findOneAndUpdate(
                 { email: user.email },
@@ -168,7 +168,7 @@ exports.returnBook = async (req, res, next) => {
             )
         ])
 
-          await session.commitTransaction();
+        await session.commitTransaction();
 
         res.status(200).json({
             status: 'success',
@@ -184,7 +184,6 @@ exports.returnBook = async (req, res, next) => {
 
 
 exports.deleteBook = async (req, res, next) => {
-    console.log(req.params.code)
     try {
         const book = await Book.findOne({ code: req.params.code });
 
