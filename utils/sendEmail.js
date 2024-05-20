@@ -1,4 +1,9 @@
+const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
+const path = require('path');
+
+const envPath = path.resolve(__dirname, './../config.env');
+dotenv.config({path: envPath});
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -6,7 +11,7 @@ const transporter = nodemailer.createTransport({
     secure: false,
     auth: {
         user: 'powermasteraws@gmail.com',
-        pass: 'wjvagylaexhgkncl'
+        pass: process.env.GMAIL_PASSWORD,
     }
 })
 

@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 async function sendOTPEmail(email, otp) {
     const mailOptions = {
-        from: 'LMS Admin',
+        from: 'LMS Admin <name>',
         to: email,
         subject: 'Your password reset OTP',
         text: `Dear User,\nYou password reset OTP is ${otp}.\nThank you!`
