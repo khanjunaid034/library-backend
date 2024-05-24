@@ -70,6 +70,31 @@ exports.allBooks = async (req, res, next) => {
     }
 }
 
+exports.paginatedBooks = async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+
+    try {
+        const totalItems = await Book.countDocuments().exec();
+        const items = await Book.find().limit(limit).skip(startIndex).exec();
+
+        const results = {
+            totalItems,
+            totalPages: Math.ceil(totalItems/limit),
+            currentPage: page,
+            items
+        }
+        
+        res.status(200).json({
+            status: 'success',
+            results
+        })
+    } catch (err) {
+        next(err);
+    }
+}
+
 exports.assignBook = async (req, res, next) => {
     const session = await mongoose.startSession();
     session.startTransaction();

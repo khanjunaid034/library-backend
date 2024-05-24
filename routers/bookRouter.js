@@ -12,6 +12,9 @@ router.route('/')
 .post(authController.protect, authController.restrictTo('librarian', 'admin'), upload.single('file'), bookController.addBook)
 .get(bookController.allBooks)
 
+router.route('/paginatedBooks')
+.get(bookController.paginatedBooks)
+
 router.route('/assign')
 .patch(authController.protect, authController.restrictTo('librarian', 'admin'), bookController.assignBook)
 
