@@ -29,7 +29,7 @@ exports.addBook = async (req, res, next) => {
 
     const fileStream = fs.createReadStream(file.path);
     const uploadParams = {
-        Bucket: 'mern-play/book-images',
+        Bucket: `${process.env.S3_Bucket}/book-images`,
         Key: uniqueFileName,
         Body: fileStream
     }
@@ -74,7 +74,7 @@ exports.paginatedBooks = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const startIndex = (page - 1) * limit;
-
+    // 2-1 * 10 = 10
     try {
         const totalItems = await Book.countDocuments().exec();
         const items = await Book.find().limit(limit).skip(startIndex).exec();

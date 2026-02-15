@@ -12,7 +12,7 @@ async function sendOTPEmail(email, otp) {
         from: 'LMS Admin <name>',
         to: email,
         subject: 'Your password reset OTP',
-        text: `Dear User,\nYou password reset OTP is ${otp}.\nThank you!`
+        text: `Dear User,\n\nYou password reset OTP is ${otp}, valid for 15 minutes.\n\nThank you!`
     }
 
     try {
