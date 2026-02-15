@@ -13,13 +13,12 @@ app.use(mongoSanitize()); // to protect from NoSQL query injection attack
 app.use(xss()); // to protect from injection of HTML code into database
 
 
-
 app.use(cookieParser());
 
-app.use(cors({
-    origin: '*',
-    credentials: true
-}));
+// app.use(cors({
+//     origin: '*',
+//     credentials: true
+// }));
 
 app.use(express.json());
 app.use(morgan('dev'));

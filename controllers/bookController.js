@@ -19,6 +19,8 @@ const s3 = new AWS.S3();
 
 exports.addBook = async (req, res, next) => {
 
+    console.log(req.body);
+
     const currentYear = new Date().getFullYear();
     if (req.body.published > currentYear) {
         return next(new AppError('Book publish year cannot be greater than current year!', 400));
@@ -29,7 +31,7 @@ exports.addBook = async (req, res, next) => {
 
     const fileStream = fs.createReadStream(file.path);
     const uploadParams = {
-        Bucket: `${process.env.S3_Bucket}/book-images`,
+        Bucket: `${process.env.S3_BUCKET}/book-images`,
         Key: uniqueFileName,
         Body: fileStream
     }
@@ -40,6 +42,7 @@ exports.addBook = async (req, res, next) => {
         fs.unlinkSync(file.path);
     } catch (err) {
         fs.unlinkSync(file.path);
+        console.log(err);
         return next(err);
     }
 
@@ -52,6 +55,7 @@ exports.addBook = async (req, res, next) => {
             }
         })
     } catch (err) {
+        console.log(err);
         next(err);
     }
 }
